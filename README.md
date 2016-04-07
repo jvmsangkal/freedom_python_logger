@@ -15,6 +15,12 @@ Usage
 from freedom_python_logger import logger
 
 log = logger('config.ini')
+
+log.info('Info')
+log.warn('Warn')
+log.critical('Critical')
+log.fatal('Fatal')
+log.error('Error')
 ```
 
 Config File Format
