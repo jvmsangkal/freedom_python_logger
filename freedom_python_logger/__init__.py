@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import logging
+import configparser
 import logging.handlers
 
 from rainbow_logging_handler import RainbowLoggingHandler
@@ -20,7 +21,7 @@ def logger(config_file):
 
     CONFIG.read(config_file)
 
-    logger_config = CONFIG.get('logger')
+    logger_config = CONFIG['logger']
 
     logger = logging.getLogger(logger_config['name'])
 
@@ -39,12 +40,13 @@ def logger(config_file):
 
     logger.addHandler(handler)
 
-    file_logger_config = CONFIG.get('file_logger')
-    if file_logger_config:
+    if CONFIG.has_section('file_logger'):
+        file_logger_config = CONFIG['file_logger']
+
         fh = logging.handlers.RotatingFileHandler(
             file_logger_config['file_path'],
-            maxBytes=file_logger_config['max_log_file_size'],
-            backupCount=file_logger_config['backup_count']
+            maxBytes=int(file_logger_config['max_log_file_size']),
+            backupCount=int(file_logger_config['backup_count'])
         )
 
         fh.setLevel(LOGGING_LEVELS.get(file_logger_config['level'],
@@ -52,14 +54,16 @@ def logger(config_file):
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 
-    email_logger_config = CONFIG.get('email_logger')
-    if email_logger_config:
+    if CONFIG.has_section('email_logger'):
+        email_logger_config = CONFIG['email_logger']
+
         eh = logging.handlers.SMTPHandler(
             (email_logger_config['host'], email_logger_config['port']),
             email_logger_config['from'],
             email_logger_config['to'],
             email_logger_config['subject'],
-            (email_logger_config['username'], email_logger_config['password'])
+            (email_logger_config['username'], email_logger_config['password']),
+            ()
         )
 
         eh.setLevel(LOGGING_LEVELS.get(email_logger_config['level'],
